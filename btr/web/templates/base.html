@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birth Time Rectification (Parashara + KP)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-content">
+            <h1>🌙 Birth Time Rectification</h1>
+            <p>Parashara + Krishnamurti Paddhati (KP)</p>
+        </div>
+        <p class="header-desc">Enter a recorded birth time and confirmed life events. The engine scans candidate times and ranks them by astrological consistency.</p>
+    </header>
+
+    <main class="app-container">
+        <div class="grid-layout">
+            <section class="panel form-panel">
+                <h2>Birth Information</h2>
+                
+                <fieldset>
+                    <legend>Birth DateTime</legend>
+                    <label for="b_dt">Date & Time (recorded)</label>
+                    <input type="datetime-local" id="b_dt" step="1" value="1990-08-15T14:30:00">
+                </fieldset>
+
+                <fieldset class="row-2">
+                    <div>
+                        <label for="b_tz">Timezone (UTC offset)</label>
+                        <input type="number" id="b_tz" step="0.25" value="5.5">
+                    </div>
+                    <div>
+                        <label for="b_place">Place Name</label>
+                        <input type="text" id="b_place" value="New Delhi, India" placeholder="e.g., New York">
+                    </div>
+                </fieldset>
+
+                <fieldset class="row-2">
+                    <div>
+                        <label for="b_lat">Latitude</label>
+                        <input type="number" id="b_lat" step="0.0001" value="28.6139" placeholder="-90 to 90">
+                    </div>
+                    <div>
+                        <label for="b_lon">Longitude</label>
+                        <input type="number" id="b_lon" step="0.0001" value="77.2090" placeholder="-180 to 180">
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Astrological Details</legend>
+                    <label for="lagna">Expected Ascendant Sign(s) <span class="optional">(optional, comma-separated)</span></label>
+                    <input type="text" id="lagna" placeholder="e.g., Scorpio, Sagittarius" value="Scorpio">
+                </fieldset>
+
+                <fieldset>
+                    <legend class="legend-with-button">
+                        Life Events
+                        <button type="button" class="btn-ghost btn-small" onclick="addEvent()" title="Add a new life event">
+                            <span class="icon">+</span> Add Event
+                        </button>
+                    </legend>
+                    <div id="events" class="events-list"></div>
+                </fieldset>
+
+                <details class="advanced-settings">
+                    <summary>
+                        <span class="icon-disclosure">⚙️</span> Advanced Settings
+                    </summary>
+                    <fieldset>
+                        <legend>KP Ruling Planets (Consultation)</legend>
+                        <label for="c_dt">Consultation Date & Time <span class="optional">(defaults to now)</span></label>
+                        <input type="datetime-local" id="c_dt">
+                    </fieldset>
+
+                    <fieldset class="row-3">
+                        <div>
+                            <label for="s_window">Window <span class="unit">(±minutes)</span></label>
+                            <input type="number" id="s_window" value="30" min="5" max="120">
+                        </div>
+                        <div>
+                            <label for="s_coarse">Coarse Step <span class="unit">(seconds)</span></label>
+                            <input type="number" id="s_coarse" value="240" min="60" max="600">
+                        </div>
+                        <div>
+                            <label for="s_fine">Fine Step <span class="unit">(seconds)</span></label>
+                            <input type="number" id="s_fine" value="15" min="1" max="60">
+                        </div>
+                    </fieldset>
+                </details>
+
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="runRectify()" title="Scan and rank candidate birth times">
+                        <span class="icon">✓</span> Rectify Birth Time
+                    </button>
+                    <button class="btn-secondary" onclick="runChart()" title="Compute the chart for the entered time">
+                        <span class="icon">📊</span> Show Chart
+                    </button>
+                </div>
+            </section>
+
+            <section class="panel results-panel">
+                <h2>Results</h2>
+                <div id="out" class="results-container">
+                    <div class="placeholder">
+                        <p>📝 Fill the form and click <strong>"Rectify Birth Time"</strong> to begin.</p>
+                        <p style="font-size: 0.9em; color: var(--color-muted);">
+                            The engine will scan nearby times and score them against your life events using 
+                            both Parashara (Vimshottari Dasha) and KP (Cuspal Sub-Lords) methods.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <p><strong>BTR Engine v0.1.0</strong> • Swiss Ephemeris (Moshier model) • <a href="https://github.com/anilsabaji/Birth-Time-Rectification">GitHub</a></p>
+        <p style="font-size: 0.85em; color: var(--color-muted);">Disclaimer: Astrology is esoteric. This engine computes traditional indicators faithfully but makes no claim about predictive validity.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
