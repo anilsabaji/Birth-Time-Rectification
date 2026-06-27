@@ -8,6 +8,7 @@ license = { text = "MIT" }
 authors = [{ name = "BTR" }]
 dependencies = [
     "pyswisseph>=2.10.3.2",
+    "flask>=3.0",
 ]
 
 [project.optional-dependencies]
@@ -17,6 +18,7 @@ dev = [
 
 [project.scripts]
 btr = "btr.cli:main"
+btr-web = "btr.web.app:main"
 
 [build-system]
 requires = ["hatchling"]

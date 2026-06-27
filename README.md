@@ -74,6 +74,21 @@ print(report.render())
 
 See `examples/rectify_example.py` for a complete run.
 
+### Web UI (browser, one command)
+
+The engine needs the Swiss-Ephemeris astronomy core, so the browser UI runs as a
+tiny local Flask app rather than a static page:
+
+```bash
+. .venv/bin/activate
+btr-web                      # or: python -m btr.web.app
+```
+
+Then open **http://localhost:8000** in your browser. The page is a single form:
+enter the recorded birth time + life events, click *Rectify birth time*, and the
+ranked candidates are shown with each method's contribution. Set a custom port
+with `BTR_PORT=9000 btr-web`.
+
 ## Architecture
 
 ```
