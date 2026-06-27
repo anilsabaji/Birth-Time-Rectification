@@ -1,0 +1,45 @@
+{
+  "birth": {
+    "place": "New Delhi, India",
+    "year": 1990,
+    "month": 8,
+    "day": 15,
+    "hour": 14,
+    "minute": 30,
+    "second": 0,
+    "tz": 5.5,
+    "latitude": 28.6139,
+    "longitude": 77.2090
+  },
+
+  "consultation": {
+    "place": "New Delhi, India",
+    "year": 2026,
+    "month": 6,
+    "day": 27,
+    "hour": 11,
+    "minute": 0,
+    "tz": 5.5,
+    "latitude": 28.6139,
+    "longitude": 77.2090
+  },
+
+  "expected_lagna_signs": ["Scorpio"],
+
+  "events": [
+    { "type": "marriage",     "date": "2018-02-10", "description": "Got married",        "weight": 1.5 },
+    { "type": "child_birth",  "date": "2020-06-01", "description": "First child born",   "weight": 1.2 },
+    { "type": "career_start", "date": "2013-07-15", "description": "First full-time job", "weight": 1.0 },
+    { "type": "foreign_travel","date": "2016-09-20","description": "Moved abroad",        "weight": 0.8 }
+  ],
+
+  "method_weights": {
+    "ruling_planets_match": 2.5,
+    "cuspal_significator_event": 3.0,
+    "dasha_event_correlation": 3.0,
+    "varga_consistency": 1.5,
+    "lagna_trait_match": 1.0,
+    "pranapada_check": 0.6,
+    "gulika_check": 0.6
+  }
+}
