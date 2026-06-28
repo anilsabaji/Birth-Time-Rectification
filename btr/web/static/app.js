@@ -21,6 +21,9 @@ const EVENT_TYPES = [
     "spiritual_initiation",
 ];
 
+// Global variable to store last rectification result
+let lastRectificationData = null;
+
 /**
  * Convert event type identifier to human-readable label
  */
@@ -113,6 +116,7 @@ function collectFormData() {
     const consultationDt = document.getElementById("c_dt").value;
 
     return {
+        native_name: document.getElementById("native_name").value,
         birth: {
             datetime: document.getElementById("b_dt").value,
             tz: document.getElementById("b_tz").value,
@@ -241,6 +245,193 @@ function formatCandidateCard(candidate, index) {
 }
 
 /**
+ * Switch between result tabs
+ */
+function switchTab(tabName, event) {
+    event.preventDefault();
+    
+    // Hide all tabs
+    document.querySelectorAll(".tab-content").forEach(tab => {
+        tab.classList.remove("active");
+    });
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.remove("active");
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName).classList.add("active");
+    event.target.classList.add("active");
+}
+
+/**
+ * Show tabs after rectification
+ */
+function showTabs() {
+    const tabsElement = document.getElementById("resultsTabs");
+    if (tabsElement) {
+        tabsElement.style.display = "flex";
+    }
+}
+
+/**
+ * Generate and display HTML report
+ */
+function generateHTMLReport(data) {
+    const nativeName = document.getElementById("native_name").value || "Native";
+    const birthPlace = document.getElementById("b_place").value;
+    const birthTz = document.getElementById("b_tz").value;
+    
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Birth Time Rectification Report - ${nativeName}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 20px; }
+        h1, h2, h3 { color: #2c3e50; }
+        .header { border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px; }
+        .section { margin-bottom: 30px; page-break-inside: avoid; }
+        .best-result { background: #e8f8f5; border-left: 4px solid #27ae60; padding: 15px; margin-bottom: 20px; }
+        .candidate { background: #f8f9fa; border: 1px solid #dee2e6; padding: 12px; margin-bottom: 10px; border-radius: 4px; }
+        .score-bar { width: 100%; height: 20px; background: #ddd; border-radius: 3px; overflow: hidden; margin: 8px 0; }
+        .score-fill { height: 100%; background: linear-gradient(90deg, #e74c3c, #f39c12, #f1c40f, #2ecc71); }
+        .method-item { padding: 5px 0; font-size: 0.9em; }
+        .method-tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 0.85em; font-weight: bold; margin-right: 5px; }
+        .kp { background: #9b59b6; color: white; }
+        .parashara { background: #3498db; color: white; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #bdc3c7; padding: 10px; text-align: left; }
+        th { background: #34495e; color: white; }
+        .report-text { white-space: pre-wrap; background: #f5f5f5; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+        .timestamp { color: #7f8c8d; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Birth Time Rectification Report</h1>
+        <h3>Native: <strong>${escapeHtml(nativeName)}</strong></h3>
+        <p class="timestamp"><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+    </div>
+
+    <div class="section">
+        <h2>Birth Information</h2>
+        <table>
+            <tr><th>Field</th><th>Value</th></tr>
+            <tr><td>Date & Time</td><td>${data.given_time}</td></tr>
+            <tr><td>Place</td><td>${escapeHtml(birthPlace)}</td></tr>
+            <tr><td>Timezone</td><td>UTC +${birthTz}</td></tr>
+            <tr><td>Latitude/Longitude</td><td>${document.getElementById("b_lat").value}, ${document.getElementById("b_lon").value}</td></tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Best Rectified Time</h2>
+        <div class="best-result">
+            <p><strong>Rectified Time:</strong> ${data.best_time}</p>
+            <p><strong>Confidence Score:</strong> ${data.best_score}/100</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Top 5 Candidates</h2>
+        ${data.candidates.map((candidate, index) => `
+            <div class="candidate">
+                <h4>#${index + 1}: ${candidate.time} - Score: ${candidate.score}/100</h4>
+                <div class="score-bar"><div class="score-fill" style="width: ${candidate.score}%"></div></div>
+                <div>
+                    ${candidate.methods.map(method => `
+                        <div class="method-item">
+                            <span class="method-tag ${method.system.toLowerCase()}">${method.system}</span>
+                            <strong>${method.name}</strong>: ${method.score}%
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('')}
+    </div>
+
+    <div class="section">
+        <h2>Detailed Analysis</h2>
+        <div class="report-text">${escapeHtml(data.report_text)}</div>
+    </div>
+    
+    <hr style="margin-top: 40px;">
+    <p class="timestamp" style="text-align: center; margin-top: 20px;">Generated by BTR (Birth Time Rectification) Engine v0.2.0</p>
+</body>
+</html>
+    `;
+    return htmlContent;
+}
+
+/**
+ * Download HTML report
+ */
+function downloadHTML() {
+    if (!lastRectificationData) {
+        alert("No data to export. Run rectification first.");
+        return;
+    }
+    
+    const nativeName = document.getElementById("native_name").value || "Native";
+    const html = generateHTMLReport(lastRectificationData);
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `BTR_Report_${nativeName.replace(/\s+/g, "_")}_${new Date().getTime()}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Download PDF report
+ */
+function downloadPDF() {
+    if (!lastRectificationData) {
+        alert("No data to export. Run rectification first.");
+        return;
+    }
+    
+    const nativeName = document.getElementById("native_name").value || "Native";
+    const htmlContent = generateHTMLReport(lastRectificationData);
+    
+    const element = document.createElement("div");
+    element.innerHTML = htmlContent;
+    
+    const opt = {
+        margin: 10,
+        filename: `BTR_Report_${nativeName.replace(/\s+/g, "_")}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: "portrait", unit: "mm", format: "a4" },
+    };
+    
+    html2pdf().set(opt).from(element).save();
+}
+
+/**
+ * Copy content to clipboard
+ */
+function copyToClipboard(elementId) {
+    if (!lastRectificationData) {
+        alert("No content to copy. Run rectification first.");
+        return;
+    }
+    
+    const nativeName = document.getElementById("native_name").value || "Native";
+    const html = generateHTMLReport(lastRectificationData);
+    
+    navigator.clipboard.writeText(html).then(() => {
+        alert("HTML report copied to clipboard!");
+    }).catch(() => {
+        alert("Failed to copy to clipboard.");
+    });
+}
+
+/**
  * Run rectification analysis
  */
 async function runRectify() {
@@ -276,8 +467,23 @@ async function runRectify() {
             return;
         }
 
+        // Store data for export
+        lastRectificationData = data;
+        
+        // Show tabs
+        showTabs();
+        
         // Render results
         renderRectificationResults(data);
+        
+        // Generate export content
+        const htmlReport = generateHTMLReport(data);
+        document.getElementById("html-content").textContent = htmlReport;
+        document.getElementById("html-placeholder").style.display = "none";
+        document.getElementById("html-content").style.display = "block";
+        
+        document.getElementById("pdf-placeholder").style.display = "none";
+        document.getElementById("pdf-content").style.display = "block";
     } catch (error) {
         showError(`Request failed: ${error.message}`);
         console.error("Rectification error:", error);
