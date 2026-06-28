@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Birth Time Rectification (Parashara + KP)</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <header class="app-header">
@@ -20,6 +21,12 @@
             <section class="panel form-panel">
                 <h2>Birth Information</h2>
                 
+                <fieldset>
+                    <legend>Native Details</legend>
+                    <label for="native_name">Name of Native <span class="required">*</span></label>
+                    <input type="text" id="native_name" placeholder="Enter full name" value="Sample Native">
+                </fieldset>
+
                 <fieldset>
                     <legend>Birth DateTime</legend>
                     <label for="b_dt">Date & Time (recorded)</label>
@@ -102,13 +109,47 @@
 
             <section class="panel results-panel">
                 <h2>Results</h2>
-                <div id="out" class="results-container">
-                    <div class="placeholder">
-                        <p>📝 Fill the form and click <strong>"Rectify Birth Time"</strong> to begin.</p>
-                        <p style="font-size: 0.9em; color: var(--color-muted);">
-                            The engine will scan nearby times and score them against your life events using 
-                            both Parashara (Vimshottari Dasha) and KP (Cuspal Sub-Lords) methods.
-                        </p>
+                
+                <!-- Tab Navigation -->
+                <div class="results-tabs" id="resultsTabs" style="display: none;">
+                    <button class="tab-btn active" onclick="switchTab('results-view', event)">📊 Analysis</button>
+                    <button class="tab-btn" onclick="switchTab('html-view', event)">📄 HTML Report</button>
+                    <button class="tab-btn" onclick="switchTab('pdf-view', event)">📋 PDF Export</button>
+                </div>
+
+                <!-- Results View -->
+                <div id="results-view" class="tab-content active">
+                    <div id="out" class="results-container">
+                        <div class="placeholder">
+                            <p>📝 Fill the form and click <strong>"Rectify Birth Time"</strong> to begin.</p>
+                            <p style="font-size: 0.9em; color: var(--color-muted);">
+                                The engine will scan nearby times and score them against your life events using 
+                                both Parashara (Vimshottari Dasha) and KP (Cuspal Sub-Lords) methods.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HTML Export View -->
+                <div id="html-view" class="tab-content">
+                    <div class="export-controls">
+                        <button class="btn-export" onclick="downloadHTML()">📥 Download HTML</button>
+                        <button class="btn-export" onclick="copyToClipboard('html-content')">📋 Copy HTML</button>
+                    </div>
+                    <div id="html-content" class="html-export" style="display: none;"></div>
+                    <div id="html-placeholder" class="placeholder">
+                        <p>Run rectification to generate HTML report</p>
+                    </div>
+                </div>
+
+                <!-- PDF Export View -->
+                <div id="pdf-view" class="tab-content">
+                    <div class="export-controls">
+                        <button class="btn-export" onclick="downloadPDF()">📥 Download PDF</button>
+                    </div>
+                    <div id="pdf-content" style="display: none;" class="pdf-export"></div>
+                    <div id="pdf-placeholder" class="placeholder">
+                        <p>Run rectification to generate PDF report</p>
                     </div>
                 </div>
             </section>
@@ -116,7 +157,7 @@
     </main>
 
     <footer class="app-footer">
-        <p><strong>BTR Engine v0.1.0</strong> • Swiss Ephemeris (Moshier model) • <a href="https://github.com/anilsabaji/Birth-Time-Rectification">GitHub</a></p>
+        <p><strong>BTR Engine v0.2.0</strong> • Swiss Ephemeris (Moshier model) • <a href="https://github.com/anilsabaji/Birth-Time-Rectification">GitHub</a></p>
         <p style="font-size: 0.85em; color: var(--color-muted);">Disclaimer: Astrology is esoteric. This engine computes traditional indicators faithfully but makes no claim about predictive validity.</p>
     </footer>
 
